@@ -5,10 +5,12 @@
 #include "algebra3.h"
 #include "imageIO.h"
 
+#define PI 3.1415926535898
+#define Tan(th) tan(PI/180*(th))
+
 using namespace std;
 
-vec3 eye;
-vec3 dir, vert, hori;
+vec3 eye, dir, vert, hori;
 float Fangle;
 int Rw, Rh;
 
@@ -53,14 +55,14 @@ void setRay() {
     vert = vec3(0, 1, 0);
     hori = vert ^ dir;
 
-    hori = hori.normalize();
-    hori = hori * ( dir.length()*tan(Fangle/2)/(Rw/2) );
-
-    vert = vert.normalize();
-    vert = vert * ( dir.length()*tan(Fangle/2)/(Rh/2) );
-
     dir  =  dir.normalize();
-    dir  =  dir - Rw/2*hori + Rh/2*vert;
+    vert = vert.normalize();
+    hori = hori.normalize();
+
+    hori = hori * ( dir.length() * Tan(Fangle/2) / (Rw/2) );
+    vert = vert * ( dir.length() * Tan(Fangle/2) / (Rh/2) );
+    dir  =  dir - Rw/2 * hori + Rh/2 * vert;
+    ///cout << dir[0] << ", " << dir[1] << ", " << dir[2] << endl;
 }
 
 bool isIntersectedSph(vec3 &ray, vec4 &sph) {
@@ -124,6 +126,7 @@ int main()
         for (int j = 0; j < Rh; ++j) {
             /// generate the ray.
             vec3 ray = dir + i*hori - j*vert;
+            ray = ray.normalize();
             /// test if it intersected with all triangles.
             for (unsigned int t = 0; t < Triangle.size(); t+=3) {
                 if( isIntersectedTri(ray, Triangle[t], Triangle[t+1], Triangle[t+2]) ) {
